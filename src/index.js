@@ -39,8 +39,15 @@ class MiddlewareHandler {
   }
 
   _handle(ctx, input) {
+    const originalDoneImplementation = ctx.done;
     const stack = this.stack;
     let index = 0;
+
+    ctx.done = (...args) => {
+      index = stack.length;
+      originalDoneImplementation(...args);
+    };
+
     ctx.next = err => {
       try {
         const layer = stack[index++];

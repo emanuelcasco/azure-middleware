@@ -72,6 +72,25 @@ const InvalidSchemaFunction = new MiddlewareHandler()
   })
   .listen();
 
+const DoneEarlyFunction = new MiddlewareHandler()
+  .use(context => {
+    const predicate = true;
+    if (predicate) {
+      context.log.info('Im called');
+      context.done(null);
+    }
+    context.next();
+  })
+  .use(context => {
+    context.log.info('Im not called');
+    context.done();
+  })
+  .catch((err, context) => {
+    context.log.error(err);
+    context.done(err);
+  })
+  .listen();
+
 describe('Azure middleware works good', () => {
   it('should handle chained functions', done => {
     const message = {
@@ -140,5 +159,28 @@ describe('Azure middleware works good', () => {
     };
 
     InvalidSchemaFunction(mockContext, message);
+  });
+
+  it('should handle when done in called early', done => {
+    const message = {
+      event: 'example',
+      payload: { text: 'holamundo' }
+    };
+
+    const mockContext = {
+      ...defaultContext,
+      done: err => {
+        try {
+          expect(err).to.equal(null);
+          expect(mockContext.log.info).to.have.been.called.with('Im called');
+          expect(mockContext.log.info).to.have.not.been.called.with('Im not called');
+          done();
+        } catch (error) {
+          done(error);
+        }
+      }
+    };
+
+    DoneEarlyFunction(mockContext, message);
   });
 });

@@ -75,6 +75,7 @@
     "no-spaced-func": 0,                                          // http://eslint.org/docs/rules/no-spaced-func
     "no-sync": 0,                                                 // http://eslint.org/docs/rules/no-sync
     "no-ternary": 0,                                              // http://eslint.org/docs/rules/no-ternary
+    "no-throw-literal": 0,                                        // http://eslint.org/docs/rules/no-ternary
     "no-undefined": 0,                                            // http://eslint.org/docs/rules/no-undefined
     "no-underscore-dangle": 0,                                    // http://eslint.org/docs/rules/no-underscore-dangle
     "no-unexpected-multiline": 0,                                 // http://eslint.org/docs/rules/no-unexpected-multiline

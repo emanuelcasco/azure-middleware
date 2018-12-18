@@ -1,24 +1,29 @@
 const Joi = require('joi');
 
-class MiddlewareHandler {
+const defaultSchema = Joi.any();
+
+function validateSchema(schema) {
+  return function validate(ctx, input) {
+    const { error } = Joi.validate(input, schema);
+    if (error) {
+      ctx.next({
+        message: `Invalid input, ${error.message}`,
+        details: JSON.stringify(error.details),
+        input: JSON.stringify(input)
+      });
+    } else {
+      ctx.next();
+    }
+  };
+}
+
+class FunctionMiddlewareHandler {
   constructor() {
     this.stack = [];
-    this.schema = Joi.any();
   }
 
-  validate(schema) {
-    const fn = (ctx, input) => {
-      const { error } = Joi.validate(input, schema);
-      if (error) {
-        const errorMessage = {
-          message: 'Invalid input',
-          input: JSON.stringify(input)
-        };
-        ctx.next(errorMessage);
-        throw errorMessage;
-      }
-      ctx.next();
-    };
+  validate(schema = defaultSchema) {
+    const fn = validateSchema(schema);
     this.stack = [{ fn }, ...this.stack];
     return this;
   }
@@ -35,26 +40,28 @@ class MiddlewareHandler {
 
   listen() {
     const self = this;
-    return (context, inputs) => self._handle(context, inputs);
+    return (context, inputs, ...args) => self._handle(context, inputs, ...args);
   }
 
-  _handle(ctx, input) {
+  _handle(ctx, input, ...args) {
     const originalDoneImplementation = ctx.done;
     const stack = this.stack;
     let index = 0;
+    let doneWasCalled = false;
 
-    ctx.done = (...args) => {
-      index = stack.length;
-      originalDoneImplementation(...args);
+    ctx.done = (...params) => {
+      if (doneWasCalled) return;
+      doneWasCalled = true;
+      originalDoneImplementation(...params);
     };
 
     ctx.next = err => {
       try {
         const layer = stack[index++];
         if (!layer) return;
-        if (err && layer.error) return layer.fn(err, ctx, input);
+        if (err && layer.error) return layer.fn(err, ctx, input, ...args);
         if (err) return ctx.next(err);
-        return layer.fn(ctx, input);
+        return layer.fn(ctx, input, ...args);
       } catch (e) {
         return ctx.next(e);
       }
@@ -63,4 +70,4 @@ class MiddlewareHandler {
   }
 }
 
-module.exports = MiddlewareHandler;
+module.exports = FunctionMiddlewareHandler;

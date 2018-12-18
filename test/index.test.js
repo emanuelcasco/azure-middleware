@@ -34,65 +34,22 @@ const defaultContext = {
   bindings: () => ({})
 };
 
-const ChainedFunction = new MiddlewareHandler()
-  .use(handler)
-  .use(context => {
-    myPromise(1, () => {
-      context.log.info('Im called second');
-      context.next();
-    });
-  })
-  .use(context => {
-    context.log.info('Im called third');
-    context.done(null, { status: 200 });
-  })
-  .listen();
-
-const CatchedFunction = new MiddlewareHandler()
-  .validate(EventSchema)
-  .use(() => {
-    // eslint-disable-next-line no-throw-literal
-    throw 'This is an error';
-  })
-  .catch((err, context) => {
-    context.log.error(err);
-    context.done(err);
-  })
-  .listen();
-
-const InvalidSchemaFunction = new MiddlewareHandler()
-  .validate(EventSchema)
-  .use(context => {
-    context.log.info('Im not called');
-    context.done();
-  })
-  .catch((err, context) => {
-    context.log.error(err);
-    context.done(err);
-  })
-  .listen();
-
-const DoneEarlyFunction = new MiddlewareHandler()
-  .use(context => {
-    const predicate = true;
-    if (predicate) {
-      context.log.info('Im called');
-      context.done(null);
-    }
-    context.next();
-  })
-  .use(context => {
-    context.log.info('Im not called');
-    context.done();
-  })
-  .catch((err, context) => {
-    context.log.error(err);
-    context.done(err);
-  })
-  .listen();
-
 describe('Azure middleware works good', () => {
   it('should handle chained functions', done => {
+    const ChainedFunction = new MiddlewareHandler()
+      .use(handler)
+      .use(context => {
+        myPromise(1, () => {
+          context.log.info('Im called second');
+          context.next();
+        });
+      })
+      .use(context => {
+        context.log.info('Im called third');
+        context.done(null, { status: 200 });
+      })
+      .listen();
+
     const message = {
       event: 'example',
       payload: { text: 'holamundo' }
@@ -116,6 +73,20 @@ describe('Azure middleware works good', () => {
   });
 
   it('should handle error in catch', done => {
+    const CatchedFunction = new MiddlewareHandler()
+      .use(() => {
+        throw 'This is an error';
+      })
+      .use(context => {
+        context.log.info('Im not called');
+        context.done();
+      })
+      .catch((err, context) => {
+        context.log.error(err);
+        context.done(err);
+      })
+      .listen();
+
     const message = {
       event: 'example',
       payload: { text: 'holamundo' }
@@ -138,19 +109,28 @@ describe('Azure middleware works good', () => {
   });
 
   it('should handle invalid schema inputs', done => {
-    const message = { event: 'example' };
+    const message = {};
+
+    const InvalidSchemaFunction = new MiddlewareHandler()
+      .validate(EventSchema)
+      .use(context => {
+        context.log.info('Im not called');
+        context.done();
+      })
+      .catch((err, context) => {
+        context.log.error(err);
+        context.done(err);
+      })
+      .listen();
 
     const mockContext = {
       ...defaultContext,
       done: err => {
         try {
-          expect(err.message).to.equal('Invalid input');
+          expect(err.message).to.include('Invalid input');
           expect(err.input).to.equal(JSON.stringify(message));
           expect(mockContext.log.info).to.have.not.been.called.with('Im not called');
-          expect(mockContext.log.error).to.have.been.called.with({
-            message: 'Invalid input',
-            input: JSON.stringify(message)
-          });
+          expect(mockContext.log.error).to.have.been.called();
           done();
         } catch (error) {
           done(error);
@@ -167,6 +147,25 @@ describe('Azure middleware works good', () => {
       payload: { text: 'holamundo' }
     };
 
+    const DoneEarlyFunction = new MiddlewareHandler()
+      .use(context => {
+        const predicate = true;
+        if (predicate) {
+          context.log.info('Im called');
+          context.done(null);
+        }
+        context.next();
+      })
+      .use(context => {
+        context.log.info('Im not called');
+        context.done();
+      })
+      .catch((err, context) => {
+        context.log.error(err);
+        context.done(err);
+      })
+      .listen();
+
     const mockContext = {
       ...defaultContext,
       done: err => {
@@ -182,5 +181,42 @@ describe('Azure middleware works good', () => {
     };
 
     DoneEarlyFunction(mockContext, message);
+  });
+
+  it('should handle when done in called early', done => {
+    const message = {
+      event: 'example',
+      payload: { text: 'holamundo' }
+    };
+
+    const SpreadDataFunction = new MiddlewareHandler()
+      .use(context => {
+        context.myData = 'some info';
+        context.next();
+      })
+      .use(context => {
+        context.log.info('Im not called');
+        context.done(null, { data: context.myData });
+      })
+      .catch((err, context) => {
+        context.log.error(err);
+        context.done(err);
+      })
+      .listen();
+
+    const mockContext = {
+      ...defaultContext,
+      done: (err, response) => {
+        try {
+          expect(err).to.equal(null);
+          expect(response.data).to.equal('some info');
+          done();
+        } catch (error) {
+          done(error);
+        }
+      }
+    };
+
+    SpreadDataFunction(mockContext, message);
   });
 });

@@ -33,6 +33,11 @@ class FunctionMiddlewareHandler {
     return this;
   }
 
+  optionalUse(predicate, fn) {
+    this.stack.push({ fn, predicate, optional: true });
+    return this;
+  }
+
   catch(fn) {
     this.stack.push({ fn, error: true });
     return this;
@@ -61,6 +66,9 @@ class FunctionMiddlewareHandler {
         if (!layer) return;
         if (err && layer.error) return layer.fn(err, ctx, input, ...args);
         if (err) return ctx.next(err);
+        if (layer.optional) {
+          if (!layer.predicate(input)) return ctx.next();
+        }
         return layer.fn(ctx, input, ...args);
       } catch (e) {
         return ctx.next(e);

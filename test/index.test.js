@@ -34,7 +34,7 @@ const defaultContext = {
   bindings: () => ({})
 };
 
-describe('Azure middleware works good', () => {
+describe('Azure middleware basic functionality works good', () => {
   it('should handle chained functions', done => {
     const ChainedFunction = new MiddlewareHandler()
       .use(handler)
@@ -183,7 +183,7 @@ describe('Azure middleware works good', () => {
     DoneEarlyFunction(mockContext, message);
   });
 
-  it('should handle when done in called early', done => {
+  it('should handle data spreading', done => {
     const message = {
       event: 'example',
       payload: { text: 'holamundo' }
@@ -218,5 +218,60 @@ describe('Azure middleware works good', () => {
     };
 
     SpreadDataFunction(mockContext, message);
+  });
+});
+describe('Azure middleware optional chaining works good', () => {
+  it('should handle when optional chaining function handlers', done => {
+    const message = {
+      event: 'example',
+      payload: { text: 'holamundo' }
+    };
+
+    const OptionalFunction = new MiddlewareHandler()
+      .use(context => {
+        context.data = [];
+        context.next();
+      })
+      .optionalUse(
+        msg => msg.event === 'example',
+        context => {
+          context.data.push(1);
+          context.next();
+        }
+      )
+      .use(context => {
+        context.data.push(2);
+        context.next();
+      })
+      .optionalUse(
+        msg => msg.event !== 'example',
+        context => {
+          context.data.push(3);
+          context.next();
+        }
+      )
+      .use(context => {
+        context.data.push(4);
+        context.done(null, context.data);
+      })
+      .catch((err, context) => {
+        context.done(err);
+      })
+      .listen();
+
+    const mockContext = {
+      ...defaultContext,
+      done: (err, data) => {
+        try {
+          expect(err).to.equal(null);
+          expect(data).to.deep.equal([1, 2, 4]);
+          done();
+        } catch (error) {
+          done(error);
+        }
+      }
+    };
+
+    OptionalFunction(mockContext, message);
   });
 });

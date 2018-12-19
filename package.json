@@ -1,6 +1,6 @@
 {
   "name": "azure-middleware",
-  "version": "0.2.1",
+  "version": "0.5.0",
   "description": "Middlewares in Azure Functions",
   "engines": {
     "node": "8.9.4",

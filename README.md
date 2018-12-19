@@ -2,6 +2,13 @@
 
 Handle express-like middlewares in Azure Functions.
 
+The responsability of this middleware handler is expose a simple API to handle this use cases:
+
+- Validate input schema (using Joi.js).
+- Separate the logic in smaller pieces of code, easier to tests.
+- Provide a simple way to catch errors.
+
+
 Inspired in: https://github.com/christopheranderson/func-middleware
 
 ## First steps

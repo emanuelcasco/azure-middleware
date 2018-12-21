@@ -1,12 +1,12 @@
 >  Node.js middleware engine for Azure Functions
 
+[![](https://img.shields.io/github/languages/code-size/badges/shields.svg)](https://github.com/emanuelcasco/azure-middleware) [![](https://img.shields.io/david/:user/:repo.svg)](https://github.com/emanuelcasco/azure-middleware) [![](https://img.shields.io/node/v/:packageName.svg)](https://github.com/emanuelcasco/azure-middleware) [![](https://img.shields.io/npm/v/npm/next.svg)](https://github.com/emanuelcasco/azure-middleware) [![](https://img.shields.io/github/issues-raw/badges/shields.svg)](https://github.com/emanuelcasco/azure-middleware)
 
 <p align="center">
   <img width="150" height="150" src="./assets/logo.png">
 </p>
 
 # Azure Middleware Engine 🔗
-
 
 Azure Middleware Engine is developed inspired in web framworks like [express](http://expressjs.com/), [fastify](http://fastify.io/), [hapi](https://hapijs.com/), etc. to provide an easy-to-use api to use middleware patter in [Azure Functions](https://azure.microsoft.com/en-us/services/functions/).
 
@@ -22,14 +22,14 @@ const schema = require('../schemas');
 
 const ChainedFunction = new MiddlewareHandler()
    .validate(schema)
-   .chain(someFunctionHandler)
-   .chain(ctx => {
+   .use(someFunctionHandler)
+   .use(ctx => {
       Promise.resolve(1).then(() => {
          ctx.log.info('Im called second');
          ctx.next();
       });
    })
-   .chain(ctx => {
+   .use(ctx => {
       ctx.log.info('Im called third');
       ctx.done(null, { status: 200 });
    })
@@ -63,19 +63,19 @@ Having not found an option already developed, I decided to create my own middlew
 
 If you are familiar with Functional programming you will notice that behavior is similar to a pipeline. You can attach function handlers to the chain and them will be executed sequentially, 
 
-#### middlewareHandler.chain
+#### middlewareHandler.use
 
-You can add a middleware using `chain`. The order which handlers are added to the handler determines the order in which they'll be executed in the runtime.
+You can add a middleware using `use`. The order which handlers are added to the handler determines the order in which they'll be executed in the runtime.
 
 ```javascript
 const ChainedFunction = new MiddlewareHandler()
-  .chain(context => {
+  .use(context => {
     myPromise(1, () => {
       context.log.info('Im called second');
       context.next();
     });
   })
-  .chain(context => {
+  .use(context => {
     context.log.info('Im called third');
     context.done(null, { status: 200 });
   })
@@ -84,17 +84,17 @@ const ChainedFunction = new MiddlewareHandler()
 module.exports = ChainedFunction;
 ```
 
-#### middlewareHandler.optionalChain
+#### middlewareHandler.useIf
 
-Similar to `chain`, but you can define a predicate as first argument. If predicates resolves in a `false` then function handler won't be executed.
+Similar to `use`, but you can define a predicate as first argument. If predicates resolves in a `false` then function handler won't be executed.
 
 ```javascript
 const OptionalFunction = new MiddlewareHandler()
-   .chain(ctx => {
+   .use(ctx => {
       ctx.log.info('I will be called');
       ctx.next();
    })
-   .optionalChain(
+   .useIf(
       msg => false, // function won't be executed
       ctx => {
       	ctx.log.info('I won\'t be called');
@@ -116,7 +116,7 @@ You can define a schema validation to your function input. We use [Joi](https://
 ```javascript
 const SchemaFunction = new MiddlewareHandler()
   .validate(JoiSchema)
-  .chain(context => {
+  .use(context => {
     context.log.info('Im called only if message is valid');
     context.done();
   })
@@ -134,7 +134,7 @@ Error handling functions will only be executed if there an error has been thrown
 ```javascript
 const CatchedFunction = new FunctionMiddlewareHandler()
   .validate(EventSchema)
-  .chain(() => {
+  .use(() => {
     throw 'This is an error';
   })
   .catch((err, context) => {

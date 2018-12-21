@@ -4,7 +4,7 @@
   "description": "Node.js middleware engine for Azure Functions",
   "engines": {
     "node": "8.9.4",
-    "npm": "2.14.2"
+    "npm": "6.5.0"
   },
   "scripts": {
     "cover": "NODE_ENV=testing istanbul cover ./node_modules/mocha/bin/_mocha --compilers js:babel-core/register test/app.js",

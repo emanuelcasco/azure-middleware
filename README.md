@@ -1,6 +1,4 @@
->  Node.js middleware engine for Azure Functions
-
-[![](https://img.shields.io/github/languages/code-size/badges/shields.svg)](https://github.com/emanuelcasco/azure-middleware) [![](https://img.shields.io/david/:user/:repo.svg)](https://github.com/emanuelcasco/azure-middleware) [![](https://img.shields.io/node/v/:packageName.svg)](https://github.com/emanuelcasco/azure-middleware) [![](https://img.shields.io/npm/v/npm/next.svg)](https://github.com/emanuelcasco/azure-middleware) [![](https://img.shields.io/github/issues-raw/badges/shields.svg)](https://github.com/emanuelcasco/azure-middleware)
+[![](https://img.shields.io/travis/emanuelcasco/azure-middleware.svg)](https://github.com/emanuelcasco/azure-middleware) [![](https://img.shields.io/github/issues/emanuelcasco/azure-middleware.svg)](https://github.com/emanuelcasco/azure-middleware/issues) [![](https://img.shields.io/github/stars/emanuelcasco/azure-middleware.svg)](https://github.com/emanuelcasco/azure-middleware) [![](https://img.shields.io/github/license/emanuelcasco/azure-middleware.svg)](https://github.com/emanuelcasco/azure-middleware) [![](https://img.shields.io/node/v/azure-middleware-engine.svg)](https://www.npmjs.com/package/azure-middleware)
 
 <p align="center">
   <img width="150" height="150" src="./assets/logo.png">

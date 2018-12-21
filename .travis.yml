@@ -1,22 +1,9 @@
 language: node_js
-
 node_js:
-  - "8.9.4"
-
-sudo: true
-
-env:
-  - CXX=g++-4.8
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    packages:
-    - g++-4.8
-
-services:
-  - postgresql
-
-before_script:
-  - psql -c "CREATE DATABASE bookstest;" -U postgres
-  - node_modules/.bin/sequelize db:migrate
+  - "node"
+dist: trusty
+install:
+  - npm i -g npm@6.5.0
+  - npm ci
+scripts:
+  - npm test

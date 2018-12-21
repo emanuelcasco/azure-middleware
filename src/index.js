@@ -33,7 +33,7 @@ class FunctionMiddlewareHandler {
     return this;
   }
 
-  optionalUse(predicate, fn) {
+  useIf(predicate, fn) {
     this.stack.push({ fn, predicate, optional: true });
     return this;
   }

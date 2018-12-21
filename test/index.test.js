@@ -7,12 +7,6 @@ const MiddlewareHandler = require('../index');
 const { expect } = chai;
 chai.use(spies);
 
-const myPromise = (delayInMilliseconds, cb) => {
-  setTimeout(() => {
-    cb();
-  }, delayInMilliseconds);
-};
-
 const EventSchema = Joi.object({
   event: Joi.string()
     .valid('example')
@@ -24,12 +18,12 @@ const EventSchema = Joi.object({
     .required()
 }).required();
 
-const handler = context => {
-  context.log.info('Im called first');
-  context.next();
+const handler = ctx => {
+  ctx.log.info('Im called first');
+  ctx.next();
 };
 
-const defaultContext = {
+const defaultctx = {
   log: chai.spy.interface('log', ['info', 'error', 'warn']),
   bindings: () => ({})
 };
@@ -38,15 +32,15 @@ describe('Azure middleware basic functionality works good', () => {
   it('should handle chained functions', done => {
     const ChainedFunction = new MiddlewareHandler()
       .use(handler)
-      .use(context => {
-        myPromise(1, () => {
-          context.log.info('Im called second');
-          context.next();
+      .use(ctx => {
+        Promise.resolve(1).then(() => {
+          ctx.log.info('Im called second');
+          ctx.next();
         });
       })
-      .use(context => {
-        context.log.info('Im called third');
-        context.done(null, { status: 200 });
+      .use(ctx => {
+        ctx.log.info('Im called third');
+        ctx.done(null, { status: 200 });
       })
       .listen();
 
@@ -54,22 +48,22 @@ describe('Azure middleware basic functionality works good', () => {
       event: 'example',
       payload: { text: 'holamundo' }
     };
-    const mockContext = {
-      ...defaultContext,
+    const mockCtx = {
+      ...defaultctx,
       done: (err, res) => {
         try {
           expect(err).to.equal(null);
           expect(res).to.deep.equal({ status: 200 });
-          expect(mockContext.log.info).to.have.been.called.with('Im called first');
-          expect(mockContext.log.info).to.have.been.called.with('Im called second');
-          expect(mockContext.log.info).to.have.been.called.with('Im called third');
+          expect(mockCtx.log.info).to.have.been.called.with('Im called first');
+          expect(mockCtx.log.info).to.have.been.called.with('Im called second');
+          expect(mockCtx.log.info).to.have.been.called.with('Im called third');
           done();
         } catch (error) {
           done(error);
         }
       }
     };
-    ChainedFunction(mockContext, message);
+    ChainedFunction(mockCtx, message);
   });
 
   it('should handle error in catch', done => {
@@ -77,13 +71,13 @@ describe('Azure middleware basic functionality works good', () => {
       .use(() => {
         throw 'This is an error';
       })
-      .use(context => {
-        context.log.info('Im not called');
-        context.done();
+      .use(ctx => {
+        ctx.log.info('Im not called');
+        ctx.done();
       })
-      .catch((err, context) => {
-        context.log.error(err);
-        context.done(err);
+      .catch((err, ctx) => {
+        ctx.log.error(err);
+        ctx.done(err);
       })
       .listen();
 
@@ -92,12 +86,12 @@ describe('Azure middleware basic functionality works good', () => {
       payload: { text: 'holamundo' }
     };
 
-    const mockContext = {
-      ...defaultContext,
+    const mockCtx = {
+      ...defaultctx,
       done: err => {
         try {
           expect(err).to.equal('This is an error');
-          expect(mockContext.log.error).to.have.been.called.with('This is an error');
+          expect(mockCtx.log.error).to.have.been.called.with('This is an error');
           done();
         } catch (error) {
           done(error);
@@ -105,7 +99,7 @@ describe('Azure middleware basic functionality works good', () => {
       }
     };
 
-    CatchedFunction(mockContext, message);
+    CatchedFunction(mockCtx, message);
   });
 
   it('should handle invalid schema inputs', done => {
@@ -113,24 +107,24 @@ describe('Azure middleware basic functionality works good', () => {
 
     const InvalidSchemaFunction = new MiddlewareHandler()
       .validate(EventSchema)
-      .use(context => {
-        context.log.info('Im not called');
-        context.done();
+      .use(ctx => {
+        ctx.log.info('Im not called');
+        ctx.done();
       })
-      .catch((err, context) => {
-        context.log.error(err);
-        context.done(err);
+      .catch((err, ctx) => {
+        ctx.log.error(err);
+        ctx.done(err);
       })
       .listen();
 
-    const mockContext = {
-      ...defaultContext,
+    const mockCtx = {
+      ...defaultctx,
       done: err => {
         try {
           expect(err.message).to.include('Invalid input');
           expect(err.input).to.equal(JSON.stringify(message));
-          expect(mockContext.log.info).to.have.not.been.called.with('Im not called');
-          expect(mockContext.log.error).to.have.been.called();
+          expect(mockCtx.log.info).to.have.not.been.called.with('Im not called');
+          expect(mockCtx.log.error).to.have.been.called();
           done();
         } catch (error) {
           done(error);
@@ -138,7 +132,7 @@ describe('Azure middleware basic functionality works good', () => {
       }
     };
 
-    InvalidSchemaFunction(mockContext, message);
+    InvalidSchemaFunction(mockCtx, message);
   });
 
   it('should handle when done in called early', done => {
@@ -148,31 +142,31 @@ describe('Azure middleware basic functionality works good', () => {
     };
 
     const DoneEarlyFunction = new MiddlewareHandler()
-      .use(context => {
+      .use(ctx => {
         const predicate = true;
         if (predicate) {
-          context.log.info('Im called');
-          context.done(null);
+          ctx.log.info('Im called');
+          ctx.done(null);
         }
-        context.next();
+        ctx.next();
       })
-      .use(context => {
-        context.log.info('Im not called');
-        context.done();
+      .use(ctx => {
+        ctx.log.info('Im not called');
+        ctx.done();
       })
-      .catch((err, context) => {
-        context.log.error(err);
-        context.done(err);
+      .catch((err, ctx) => {
+        ctx.log.error(err);
+        ctx.done(err);
       })
       .listen();
 
-    const mockContext = {
-      ...defaultContext,
+    const mockCtx = {
+      ...defaultctx,
       done: err => {
         try {
           expect(err).to.equal(null);
-          expect(mockContext.log.info).to.have.been.called.with('Im called');
-          expect(mockContext.log.info).to.have.not.been.called.with('Im not called');
+          expect(mockCtx.log.info).to.have.been.called.with('Im called');
+          expect(mockCtx.log.info).to.have.not.been.called.with('Im not called');
           done();
         } catch (error) {
           done(error);
@@ -180,7 +174,7 @@ describe('Azure middleware basic functionality works good', () => {
       }
     };
 
-    DoneEarlyFunction(mockContext, message);
+    DoneEarlyFunction(mockCtx, message);
   });
 
   it('should handle data spreading', done => {
@@ -190,22 +184,22 @@ describe('Azure middleware basic functionality works good', () => {
     };
 
     const SpreadDataFunction = new MiddlewareHandler()
-      .use(context => {
-        context.myData = 'some info';
-        context.next();
+      .use(ctx => {
+        ctx.myData = 'some info';
+        ctx.next();
       })
-      .use(context => {
-        context.log.info('Im not called');
-        context.done(null, { data: context.myData });
+      .use(ctx => {
+        ctx.log.info('Im not called');
+        ctx.done(null, { data: ctx.myData });
       })
-      .catch((err, context) => {
-        context.log.error(err);
-        context.done(err);
+      .catch((err, ctx) => {
+        ctx.log.error(err);
+        ctx.done(err);
       })
       .listen();
 
-    const mockContext = {
-      ...defaultContext,
+    const mockCtx = {
+      ...defaultctx,
       done: (err, response) => {
         try {
           expect(err).to.equal(null);
@@ -217,7 +211,7 @@ describe('Azure middleware basic functionality works good', () => {
       }
     };
 
-    SpreadDataFunction(mockContext, message);
+    SpreadDataFunction(mockCtx, message);
   });
 });
 describe('Azure middleware optional chaining works good', () => {
@@ -228,39 +222,39 @@ describe('Azure middleware optional chaining works good', () => {
     };
 
     const OptionalFunction = new MiddlewareHandler()
-      .use(context => {
-        context.data = [];
-        context.next();
+      .use(ctx => {
+        ctx.data = [];
+        ctx.next();
       })
-      .optionalUse(
+      .useIf(
         msg => msg.event === 'example',
-        context => {
-          context.data.push(1);
-          context.next();
+        ctx => {
+          ctx.data.push(1);
+          ctx.next();
         }
       )
-      .use(context => {
-        context.data.push(2);
-        context.next();
+      .use(ctx => {
+        ctx.data.push(2);
+        ctx.next();
       })
-      .optionalUse(
+      .useIf(
         msg => msg.event !== 'example',
-        context => {
-          context.data.push(3);
-          context.next();
+        ctx => {
+          ctx.data.push(3);
+          ctx.next();
         }
       )
-      .use(context => {
-        context.data.push(4);
-        context.done(null, context.data);
+      .use(ctx => {
+        ctx.data.push(4);
+        ctx.done(null, ctx.data);
       })
-      .catch((err, context) => {
-        context.done(err);
+      .catch((err, ctx) => {
+        ctx.done(err);
       })
       .listen();
 
-    const mockContext = {
-      ...defaultContext,
+    const mockCtx = {
+      ...defaultctx,
       done: (err, data) => {
         try {
           expect(err).to.equal(null);
@@ -272,6 +266,6 @@ describe('Azure middleware optional chaining works good', () => {
       }
     };
 
-    OptionalFunction(mockContext, message);
+    OptionalFunction(mockCtx, message);
   });
 });

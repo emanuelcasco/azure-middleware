@@ -1,5 +1,5 @@
 {
-  "name": "azure-middleware-engine",
+  "name": "azure-middleware",
   "version": "0.8.0",
   "description": "Node.js middleware engine for Azure Functions",
   "engines": {
@@ -7,8 +7,6 @@
     "npm": "6.5.0"
   },
   "scripts": {
-    "cover": "NODE_ENV=testing istanbul cover ./node_modules/mocha/bin/_mocha --compilers js:babel-core/register test/app.js",
-    "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | coveralls",
     "eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check",
     "lint": "./node_modules/eslint/bin/eslint.js \"**/*.js\"",
     "lint-diff": "git diff --name-only --cached --relative | grep \\\\.js$ | xargs ./node_modules/eslint/bin/eslint.js",
@@ -16,7 +14,8 @@
     "precommit": "npm run lint-diff",
     "outdated": "npm outdated --depth 0",
     "pretest": "npm run lint",
-    "test": "NODE_ENV=testing ./node_modules/mocha/bin/_mocha --timeout 6000 --exit \"**/*.test.js\"",
+    "cover": "nyc --reporter=text npm test",
+    "test": "NODE_ENV=testing ./node_modules/mocha/bin/_mocha test/index.test.js --timeout 6000 --exit",
     "test-inspect": "NODE_ENV=testing node --inspect --debug-brk ./node_modules/mocha/bin/_mocha \"**/*.test.js\""
   },
   "cacheDirectories": [
@@ -51,6 +50,7 @@
     "istanbul": "^0.4.3",
     "mocha": "^5.0.1",
     "mocha-lcov-reporter": "^1.2.0",
+    "nyc": "^13.1.0",
     "prettier": "^1.8.2",
     "prettier-eslint": "^8.2.1"
   },

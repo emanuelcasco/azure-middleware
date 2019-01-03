@@ -1,1 +1,3 @@
 app/dist
+.nyc_output
+coverage

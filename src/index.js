@@ -1,19 +1,18 @@
 const Joi = require('joi');
 
-const defaultSchema = Joi.any();
-
 function validateSchema(schema) {
   return function validate(ctx, input) {
-    const { error } = Joi.validate(input, schema);
-    if (error) {
-      ctx.next({
-        message: `Invalid input, ${error.message}`,
-        details: JSON.stringify(error.details),
-        input: JSON.stringify(input)
-      });
-    } else {
-      ctx.next();
+    if (schema) {
+      const { error } = Joi.validate(input, schema);
+      if (error) {
+        return ctx.next({
+          message: `Invalid input, ${error.message}`,
+          details: JSON.stringify(error.details),
+          input: JSON.stringify(input)
+        });
+      }
     }
+    ctx.next();
   };
 }
 
@@ -22,9 +21,8 @@ class FunctionMiddlewareHandler {
     this.stack = [];
   }
 
-  validate(schema = defaultSchema) {
-    const fn = validateSchema(schema);
-    this.stack = [{ fn }, ...this.stack];
+  validate(schema) {
+    this.stack = [{ fn: validateSchema(schema) }, ...this.stack];
     return this;
   }
 

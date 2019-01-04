@@ -246,6 +246,7 @@ it('should handle data spreading', done => {
 
   SpreadDataFunction(mockCtx, message);
 });
+
 it('should handle when optional chaining function handlers', done => {
   const message = {
     event: 'example',
@@ -298,4 +299,18 @@ it('should handle when optional chaining function handlers', done => {
   };
 
   OptionalFunction(mockCtx, message);
+});
+
+it('should handle empty argument in validation and throw error', done => {
+  try {
+    new MiddlewareHandler()
+      .validate()
+      .use(handler)
+      .catch((err, ctx) => ctx.done(err))
+      .listen();
+    done('should throw!');
+  } catch (e) {
+    expect(e.message).to.equal('schema should not be empty!');
+    done();
+  }
 });

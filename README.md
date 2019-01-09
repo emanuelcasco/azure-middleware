@@ -93,7 +93,7 @@ const OptionalFunction = new MiddlewareHandler()
       ctx.next();
    })
    .useIf(
-      msg => false, // function won't be executed
+      (ctx, msg) => false, // function won't be executed
       ctx => {
       	ctx.log.info('I won\'t be called');
          ctx.next();

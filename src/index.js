@@ -65,7 +65,7 @@ class FunctionMiddlewareHandler {
         if (err && layer.error) return layer.fn(err, ctx, input, ...args);
         if (err) return ctx.next(err);
         if (layer.optional) {
-          if (!layer.predicate(input)) return ctx.next();
+          if (!layer.predicate(ctx, input)) return ctx.next();
         }
         return layer.fn(ctx, input, ...args);
       } catch (e) {

@@ -259,7 +259,7 @@ it('should handle when optional chaining function handlers', done => {
       ctx.next();
     })
     .useIf(
-      msg => msg.event === 'example',
+      (ctx, msg) => msg.event === 'example',
       ctx => {
         ctx.data.push(1);
         ctx.next();
@@ -270,7 +270,7 @@ it('should handle when optional chaining function handlers', done => {
       ctx.next();
     })
     .useIf(
-      msg => msg.event !== 'example',
+      (ctx, msg) => msg.event !== 'example',
       ctx => {
         ctx.data.push(3);
         ctx.next();

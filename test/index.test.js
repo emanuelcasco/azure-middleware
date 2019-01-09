@@ -314,3 +314,37 @@ it('should handle empty argument in validation and throw error', done => {
     done();
   }
 });
+
+it('should handle when optional chaining function handlers', done => {
+  const message = {
+    event: 'example',
+    payload: { text: 'holamundo' }
+  };
+
+  const NextFunction = new MiddlewareHandler()
+    .use(ctx => {
+      ctx.log.info('Im called first');
+      ctx.next();
+    })
+    .use(ctx => {
+      ctx.log.info('Im called second');
+      ctx.next(null);
+    })
+    .listen();
+
+  const mockCtx = {
+    ...defaultctx,
+    done: err => {
+      try {
+        expect(err).to.equal(null);
+        expect(mockCtx.log.info).to.have.been.called.with('Im called first');
+        expect(mockCtx.log.info).to.have.been.called.with('Im called second');
+        done();
+      } catch (error) {
+        done(error);
+      }
+    }
+  };
+
+  NextFunction(mockCtx, message);
+});

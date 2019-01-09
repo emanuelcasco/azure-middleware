@@ -61,7 +61,7 @@ class FunctionMiddlewareHandler {
     ctx.next = err => {
       try {
         const layer = stack[index++];
-        if (!layer) return;
+        if (!layer) return ctx.done(err);
         if (err && layer.error) return layer.fn(err, ctx, input, ...args);
         if (err) return ctx.next(err);
         if (layer.optional) {

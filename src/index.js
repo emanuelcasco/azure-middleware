@@ -61,12 +61,20 @@ class FunctionMiddlewareHandler {
     ctx.next = err => {
       try {
         const layer = stack[index++];
+        // No more layers to evaluate
+        // Call DONE
         if (!layer) return ctx.done(err);
+        // Both next called with err AND layers is error handler
+        // Call error handler
         if (err && layer.error) return layer.fn(err, ctx, input, ...args);
-        if (err) return ctx.next(err);
-        if (layer.optional) {
-          if (!layer.predicate(ctx, input)) return ctx.next();
-        }
+        // Next called with err OR layers is error handler, but not both
+        // Next layer
+        if (err || layer.error) return ctx.next(err);
+        // Layer is optional and predicate resolves to false
+        // Next layer
+        if (layer.optional && !layer.predicate(ctx, input)) return ctx.next();
+
+        // Call function handler
         return layer.fn(ctx, input, ...args);
       } catch (e) {
         return ctx.next(e);

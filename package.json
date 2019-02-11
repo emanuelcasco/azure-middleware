@@ -1,7 +1,8 @@
 {
   "name": "azure-middleware",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Node.js middleware engine for Azure Functions",
+  "keywords": ["azure", "middlewares", "middleware handler", "middleware engine", "azure functions"],
   "engines": {
     "node": "8.9.4",
     "npm": "6.5.0"

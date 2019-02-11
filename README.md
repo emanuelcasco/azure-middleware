@@ -107,6 +107,24 @@ const OptionalFunction = new MiddlewareHandler()
 module.exports = OptionalFunction;
 ```
 
+#### middlewareHandler.iterate
+
+Allows you to iterate over an array of elements that will be passed to an iterator function.
+
+```javascript
+const IterateFunction = new MiddlewareHandler()
+   .iterate([1,2,3,4], index => ctx => {
+      ctx.log.info(index);
+      ctx.next();
+   })
+   .catch((err, ctx) => {
+      ctx.done(err);
+   })
+  .listen()
+
+module.exports = IterateFunction;
+```
+
 #### middlewareHandler.validate
 
 You can define a schema validation to your function input. We use [Joi](https://www.npmjs.com/package/azure-middleware) to create and validate schemas.

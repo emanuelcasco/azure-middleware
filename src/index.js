@@ -31,6 +31,13 @@ class FunctionMiddlewareHandler {
     return this;
   }
 
+  iterate(args, iterator) {
+    args.forEach(arg => {
+      this.stack.push({ fn: iterator(arg) });
+    });
+    return this;
+  }
+
   useIf(predicate, fn) {
     this.stack.push({ fn, predicate, optional: true });
     return this;
@@ -80,7 +87,7 @@ class FunctionMiddlewareHandler {
         return ctx.next(e);
       }
     };
-    return ctx.next();
+    ctx.next();
   }
 }
 

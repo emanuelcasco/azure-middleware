@@ -32,6 +32,8 @@ const ChainedFunction = new MiddlewareHandler()
       ctx.done(null, { status: 200 });
    })
    .listen();
+   
+module.exports = ChainedFunction;
 ```
 
 ## Install

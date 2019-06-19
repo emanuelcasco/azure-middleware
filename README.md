@@ -40,7 +40,7 @@ module.exports = ChainedFunction;
 Simply run:
 
 ```bash
-npm install azure-middleware-engine
+npm install azure-middleware
 ```
 
 
@@ -201,7 +201,7 @@ This project is maintained by [Emanuel Casco](https://github.com/emanuelcasco).
 **azure-middleware-engine** is available under the MIT [license](https://github.com/emanuelcasco/azure-middleware/blob/HEAD/LICENSE.md).
 
 ```
-Copyright (c) 2018 Emanuel Casco
+Copyright (c) 2019 Emanuel Casco
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

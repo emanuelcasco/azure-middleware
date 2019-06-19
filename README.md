@@ -14,7 +14,6 @@ For example:
 
 ```js
 // index.js
-
 const { someFunctionHandler } = require('./handlers');
 const schema = require('../schemas');
 
@@ -98,7 +97,7 @@ const OptionalFunction = new MiddlewareHandler()
       (ctx, msg) => false, // function won't be executed
       ctx => {
       	ctx.log.info('I won\'t be called');
-         ctx.next();
+        ctx.next();
       }
    )
    .catch((err, ctx) => {
@@ -166,8 +165,7 @@ const CatchedFunction = new FunctionMiddlewareHandler()
 
 Creates a function which can be exported as an Azure Function module.
 
-
-## API
+## API
 
 #### Function types
 

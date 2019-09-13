@@ -1,6 +1,6 @@
 {
   "name": "azure-middleware",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Node.js middleware engine for Azure Functions",
   "keywords": [
     "azure",
@@ -10,8 +10,8 @@
     "azure functions"
   ],
   "engines": {
-    "node": "8.9.4",
-    "npm": "6.5.0"
+    "node": ">=8.9.4",
+    "npm": ">=6.5.0"
   },
   "scripts": {
     "eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check",

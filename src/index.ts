@@ -119,10 +119,4 @@ export class AzureMiddleware {
       );
     };
   }
-
-  // private isMiddlewareFnWithError(
-  //   fn: MiddlewareFn | MiddlewareFnWithError,
-  // ): fn is MiddlewareFnWithError {
-  //   return fn.length > 2;
-  // }
 }

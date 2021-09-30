@@ -15,7 +15,7 @@
   },
   "scripts": {
     "build": "rimraf ./dist && tsc",
-    "eslint-check": "eslint --print-config .eslintrc.yml | eslint-config-prettier-check",
+    "eslint-check": "eslint-config-prettier index.js",
     "lint": "prettier src tests --write && eslint \"{src,tests}/*\" --ext \".ts\" --fix",
     "outdated": "npm outdated --depth 0",
     "pretest": "npm run lint",

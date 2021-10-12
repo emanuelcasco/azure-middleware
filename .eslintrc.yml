@@ -1,0 +1,58 @@
+env:
+  es2020: true
+  node: true
+extends:
+  - airbnb-typescript/base
+  - prettier
+  - plugin:eslint-comments/recommended
+  - plugin:mocha/recommended
+parser: "@typescript-eslint/parser"
+parserOptions:
+  ecmaVersion: 11
+  sourceType: module
+  project:
+    - "tsconfig.json"
+    - "tsconfig.eslint.json"
+plugins:
+  - "@typescript-eslint"
+  - import
+  - mocha
+root: true
+rules:
+  import/prefer-default-export: "off"
+  class-methods-use-this: "off"
+  no-use-before-define: "off"
+  no-unused-vars: "off"
+  no-debugger: "error"
+  no-console: "warn"
+  no-param-reassign:
+    - error
+    - props: false
+  import/no-extraneous-dependencies:
+    - error
+    - devDependencies: true
+      optionalDependencies: false
+      peerDependencies: false
+  import/no-cycle: "off"
+  "@typescript-eslint/interface-name-prefix": "off"
+  "@typescript-eslint/no-explicit-any": "off"
+  "@typescript-eslint/explicit-function-return-type": error
+  "@typescript-eslint/no-unused-vars":
+    - error
+    - ignoreRestSiblings: true
+  "@typescript-eslint/no-use-before-define":
+    - error
+    - functions: false
+      classes: false
+      enums: true
+      typedefs: true
+  eslint-comments/disable-enable-pair: error
+  eslint-comments/no-aggregating-enable: error
+  eslint-comments/no-duplicate-disable: error
+  eslint-comments/no-unlimited-disable: error
+  eslint-comments/no-unused-disable: error
+  eslint-comments/no-unused-enable: error
+  eslint-comments/require-description:
+    - error
+    - ignore:
+        - eslint-enable

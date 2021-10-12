@@ -27,7 +27,9 @@
   "cacheDirectories": [
     "node_modules"
   ],
-  "main": "app.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
   "author": "Emanuel Casco",
   "homepage": "https://github.com/emanuelcasco/azure-middleware",
   "license": "MIT",
